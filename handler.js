@@ -1,8 +1,6 @@
 //@uthor:Arpan
 var swig  = require('swig');
 
-var exec=require("child_process").exec;
-
 var qs = require('querystring');
 
 function start(request,response){
@@ -57,7 +55,6 @@ var body = '';
         
         request.on('end', function () {
             post = qs.parse(body);
-            // use post['blah'], etc.
         });
          
 response.writeHead(200,{"Console-Type":"text/plain"});
