@@ -33,19 +33,35 @@ app.get('/login.html', function(req, res) {
     res.sendFile(path.join(__dirname + '/login.html'));
 });
  
+app.get('/register_hotel.html', function(req, res) {
+    res.sendFile(path.join(__dirname + '/register_hotel.html'));
+});
+ 
+app.get('/get_hotels', function(req, res) {
+ 
+  var query= connection.query('select * from hotel', function(err, rows, fields) {
+   if (err)
+     console.log('Error while performing Query.');
+   else
+     res.status(200).send(rows);
+ });
+  console.log(query.sql);
+});
+
+ 
 app.post('/register',function(req,res){
   var fname=req.body.fname;console.log(fname);
   var lname=req.body.lname;console.log(lname);
   var gender=req.body.gender;console.log(gender);
   var email_id=req.body.email;console.log(email_id);
   var pass=md5(req.body.pass);console.log(pass);
-  connection.connect();
+ // connection.connect();
   var query= connection.query('insert into user(fname,lname,gender,email_id,password) values(\"'+fname+'\",\"'+lname+'\",\"'+gender+'\",\"'+email_id+'\",\"'+pass+'\")', function(err, rows, fields) {
    if (err)
      console.log('Error while performing Query.');
    else
-     res.status(200).send('Hey You have been registered in our database');
-  connection.end(); 
+     res.status(200).send('Hey! You have been registered in our database');
+ // connection.end(); 
  });
   console.log(query.sql);
 }); 
@@ -54,7 +70,7 @@ app.post('/login',function(req,res){
   var user_email=req.body.email;console.log(user_email);
   var user_pass=md5(req.body.pass);console.log(user_pass);
   var response_msg=null;
-  connection.connect();
+  //connection.connect();
   var query= connection.query('select * from user where email_id=\"'+user_email+'\"', function(err, rows, fields) {
    if (err)
      console.log('Error while performing Query.'); 
@@ -70,9 +86,9 @@ app.post('/login',function(req,res){
        {
           if(user_pass==rows[0].password)
           {
-            response_msg="Hi "+rows[0].fname+" "+rows[0].lname+"! Welcome to Ithaka";
-            console.log(response_msg);
-            res.status(200).send(" "+response_msg);
+            connection.query('select * from hotel where hotel_id in (select hotel_id from fav where user_id='+rows[0].user_id+')', function(err, rows, fields){
+            res.status(200).send(rows);
+            });
           }
           else
           {
@@ -83,10 +99,25 @@ app.post('/login',function(req,res){
           }
        } 
      }
-     connection.end();
+   //  connection.end();
  });
   console.log(query.sql);
   console.log(response_msg);
  // res.status(200).send(" "+response_msg);
  //connection.end();
+}); 
+
+app.post('/register_hotel',function(req,res){
+  var name=req.body.name;console.log(name);
+  var location=req.body.location;console.log(location);
+  var stars=req.body.stars;console.log(stars);
+  //connection.connect();
+ var query= connection.query('insert into hotel(name,location,stars) values(\"'+name+'\",\"'+location+'\",\"'+stars+'\")', function(err, rows, fields) {
+   if (err)
+     console.log('Error while performing Query.');
+   else
+     res.status(200).send('Hey! You have been registered in our database');
+ // connection.end(); 
+ });
+  console.log(query.sql);
 }); 
